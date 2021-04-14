@@ -1,0 +1,12 @@
+
+spring:
+  application:
+    name: chat
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+
+server:
+  port: 8090
+
