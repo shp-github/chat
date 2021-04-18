@@ -34,6 +34,7 @@ public class HtmlUtils {
             ClassPathResource cpr = new ClassPathResource("zip/html.zip");
             InputStream in = cpr.getInputStream();
             String htmlPath = serverPath + "zip/html.zip";
+
             FileUtils.copyInputStreamToFile(in, new File(htmlPath));
 
             //解压压缩包

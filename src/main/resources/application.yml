@@ -1,5 +1,10 @@
 
 spring:
+  main:
+    #设置无端口启动
+    allow-bean-definition-overriding: true
+    web-application-type: none
+
   application:
     name: chat
   servlet:
@@ -7,6 +12,6 @@ spring:
       max-file-size: -1
       max-request-size: -1
 
-server:
-  port: 8090
+#server:
+#  port: 8090
 

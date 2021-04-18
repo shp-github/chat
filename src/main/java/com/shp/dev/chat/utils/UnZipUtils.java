@@ -1,5 +1,7 @@
 package com.shp.dev.chat.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.zip.ZipFile;
  * @PackageName: com.shp.dev.chat.utils
  * @ProjectName: chat
  */
+@Slf4j
 public class UnZipUtils {
     public static void main(String[] args) {
         UnZipUtils.unZip(new File("E:\\html.zip"), "E:\\");
@@ -28,11 +31,11 @@ public class UnZipUtils {
      * @param destDirPath 解压后的目标文件夹
      * @throws RuntimeException 解压失败会抛出运行时异常
      */
-    public static void unZip(File srcFile, String destDirPath) throws RuntimeException {
+    public static void unZip(File srcFile, String destDirPath){
         long start = System.currentTimeMillis();
         // 判断源文件是否存在
         if (!srcFile.exists()) {
-            throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
+            log.error("所指文件不存在");
         }
         // 开始解压
         ZipFile zipFile = null;
@@ -71,7 +74,7 @@ public class UnZipUtils {
             long end = System.currentTimeMillis();
             System.out.println("解压完成，耗时：" + (end - start) + " ms");
         } catch (Exception e) {
-            throw new RuntimeException("unzip error from ZipUtils", e);
+            log.error("unzip error from ZipUtils");
         } finally {
             if (zipFile != null) {
                 try {
