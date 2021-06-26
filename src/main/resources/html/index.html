@@ -20,7 +20,9 @@
     <div class="main">
 
         <div class="chat-title">
-            <p style="float: left">选择联系人: <select id="select" onchange="updateValue()"><option value =''>请选择联系人</option></select></p>
+            <p style="float: left">选择联系人: <select id="select" onchange="updateValue()">
+                <option value=''>请选择联系人</option>
+            </select></p>
             <form onSubmit="return false;">
                 连接对方:&nbsp;<input type="text" id="url" name="url" value="ws://192.168.1.17:8888/ws/chat"/> <br/><br/>
             </form>
@@ -175,16 +177,16 @@
         if (window.WebSocket) {
             socketLocal = new WebSocket("ws://localhost:8888/ws/chat");
             socketLocal.onmessage = function (event) {
-                console.log("收到本服务端发送给自己的消息", event.data);
-                $("#localDiv").append("<div><div style='float: right'><span>他：" + event.data + "</span></div></div><br/>")
+                console.log("收到本服务端发送给自己的消息", event.data+"<br/>");
+                $("#localDiv").append("对方：" + event.data+"<br/>")
             };
             socketLocal.onopen = function (event) {
-                console.log("本客户端与本服务连接。。。。。。成功\r\n")
-                $("#localDiv").append("我：本客户端与本服务连接。。。。。。成功<br/>")
+                console.log("系统消息：客户端与服务链接成功!\r\n")
+                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务链接成功!</span></div></div><br/><br/>")
             };
             socketLocal.onclose = function (event) {
-                console.log("本客户端与本服务连接。。。。。。关闭 \r\n")
-                $("#localDiv").append("我：本客户端与本服务连接。。。。。。关闭<br/>")
+                console.log("系统消息：客户端与服务连接失败。。。。。。链接已关闭 \r\n")
+                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接失败。。。。。。链接已关闭</span></div></div><br/><br/>")
             };
         } else {
             alert("您的浏览器不支持WebSocket协议！");
@@ -292,7 +294,7 @@
         }
         if (socket.readyState == WebSocket.OPEN) {
             socket.send(message);
-            $("#localDiv").append("我：" + message + "<br/>")
+            $("#localDiv").append("<div><div style='float: right'><span>我："+message+"</span></div></div><br/><br/>")
             //清空消息
             editor.txt.html("");
         } else {
@@ -444,9 +446,9 @@
                     //     console.dir(arrs[i]);//输出分数
                     // }
 
-                    for(var i=0;i<arrs.length;i++){
+                    for (var i = 0; i < arrs.length; i++) {
                         console.log(arrs[i])
-                        $("#select").append("<option value ='"+arrs[i]+"'>"+arrs[i]+"</option>");
+                        $("#select").append("<option value ='" + arrs[i] + "'>" + arrs[i] + "</option>");
                     }
 
                 }
