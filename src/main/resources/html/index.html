@@ -25,7 +25,7 @@
                     <option value=''>请选择联系人</option>
                 </select></p>
             <form onSubmit="return false;">
-                连接对方:&nbsp;<input type="text" id="url" name="url" value="ws://192.168.1.17:8888/ws/chat"/> <br/><br/>
+                连接对方:&nbsp;<input type="text" id="url" name="url" value="请输入链接地址"/> <br/><br/>
             </form>
         </div>
         <div class="chat-message" id="chat-message">
@@ -117,7 +117,8 @@
 <script>
 
     function updateValue() {
-        $("#url").val($("#select").val());
+        $("#url").val($("#select").val())
+        connect();
     }
 
 
@@ -155,18 +156,21 @@
     function connect() {
 
         if (window.WebSocket) {
-            socket = new WebSocket($("#url").val());
+
+            var socketUrl = "ws://" + $("#url").val() + ":8888/ws/chat";
+
+            socket = new WebSocket(socketUrl);
             socket.onmessage = function (event) {
                 console.log("收到服务端的消息", event.data);
                 $("#localDiv").append("<div><div style='float: right'><span>他：" + event.data + "</span></div></div><br/>")
             };
             socket.onopen = function (event) {
-                console.log("Netty-WebSocket服务器。。。。。。连接  \r\n")
-                $("#localDiv").append("Netty-WebSocket服务器。。。。。。连接 <br/>")
+                console.log("与对方链接成功!  \r\n")
+                $("#localDiv").append("与对方链接成功! <br/>")
             };
             socket.onclose = function (event) {
-                console.log("Netty-WebSocket服务器。。。。。。关闭 \r\n")
-                $("#localDiv").append("Netty-WebSocket服务器。。。。。。关闭 <br/>")
+                console.log("对方不在线。。。。。。关闭 \r\n")
+                $("#localDiv").append("对方不在线。。。。。。关闭 <br/>")
             };
         } else {
             alert("您的浏览器不支持WebSocket协议！");
@@ -178,12 +182,36 @@
         if (window.WebSocket) {
             socketLocal = new WebSocket("ws://localhost:8888/ws/chat");
             socketLocal.onmessage = function (event) {
-                console.log("收到本服务端发送给自己的消息", event.data+"<br/>");
-                $("#localDiv").append("对方：" + event.data+"<br/>")
+
+                var data = event.data
+                console.log("收到本服务端发送给自己的消息", data);
+
+                try {
+                    var arr = JSON.parse(data);
+                    if ((typeof arr == 'object') && arr.constructor == Array) {
+                        var obj = document.getElementsByTagName("select")[0];
+                        var selectOptions = obj.options;
+                        var optionLength = selectOptions.length;
+                        for (var i = 0; i < optionLength; i++) {
+                            obj.removeChild(selectOptions[0]);
+                        }
+                        for (let i = 0; i < arr.length; i++) {
+                            $("#select").append("<option id='option' value='" + arr[i] + "'>" + arr[i] + "</option>")
+                        }
+                    } else {
+                        $("#localDiv").append("对方：" + event.data + "<br/>")
+                    }
+                } catch (e) {
+                    $("#localDiv").append("对方：" + event.data + "<br/>")
+                }
+
             };
             socketLocal.onopen = function (event) {
+
                 console.log("系统消息：客户端与服务链接成功!\r\n")
                 $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务链接成功!</span></div></div><br/><br/>")
+
+
             };
             socketLocal.onclose = function (event) {
                 console.log("系统消息：客户端与服务连接失败。。。。。。链接已关闭 \r\n")
@@ -295,7 +323,7 @@
         }
         if (socket.readyState == WebSocket.OPEN) {
             socket.send(message);
-            $("#localDiv").append("<div><div style='float: right'><span>我："+message+"</span></div></div><br/><br/>")
+            $("#localDiv").append("<div><div style='float: right'><span>我：" + message + "</span></div></div><br/><br/>")
             //清空消息
             editor.txt.html("");
         } else {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <exe4j version="5.0.1" transformSequenceNumber="2">
-  <directoryPresets config="D:/打包exe" />
-  <application name="chat" distributionSourceDir="D:/打包exe">
+  <directoryPresets config="C:/Users/Administrator/IdeaProjects/chat/打包exe" />
+  <application name="chat" distributionSourceDir="C:/Users/Administrator/Desktop">
     <languages>
       <principalLanguage id="en" customLocalizationFile="" />
     </languages>
   </application>
-  <executable name="chat" type="2" iconSet="true" iconFile="D:/打包exe/1.ico" executableDir="" redirectStderr="false" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="2" changeWorkingDirectory="true" workingDirectory="." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="true" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false" amd64="true">
+  <executable name="chat" type="2" iconSet="true" iconFile="C:/Users/Administrator/IdeaProjects/chat/打包exe/1.ico" executableDir="." redirectStderr="false" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="2" changeWorkingDirectory="true" workingDirectory="." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="true" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false" amd64="true">
     <messageSet />
     <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" companyName="" productVersion="" />
   </executable>
@@ -23,7 +23,7 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <classPath>
-      <archive location="D:/打包exe/chat.jar" failOnError="false" />
+      <archive location="C:/Users/Administrator/IdeaProjects/chat/打包exe/chat.jar" failOnError="false" />
     </classPath>
     <nativeLibraryDirectories />
   </java>

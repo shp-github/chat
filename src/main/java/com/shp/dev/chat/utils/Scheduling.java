@@ -1,9 +1,22 @@
 package com.shp.dev.chat.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.shp.dev.chat.netty.service.NettyChannelHandlerPool;
+import com.shp.dev.chat.netty.service.NettyWebSocketServer;
+import com.shp.dev.chat.utils.ip.IPUtils;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @CreateBy: shp
@@ -18,23 +31,21 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Slf4j
 public class Scheduling {
 
-    @Scheduled(cron = "*/6 * * * * ?")
-    private void process1() {
-    }
 
-    //https://www.cnblogs.com/wadmwz/p/10315481.html
-    //@Scheduled(fixedRate = 6000)：上一次开始执行时间点之后 6 秒再执行。
-    //@Scheduled(fixedDelay = 6000)：上一次执行完毕时间点之后 6 秒再执行。
-    //@Scheduled(initialDelay=1000, fixedRate=6000)：第一次延迟 1 秒后执行，之后按 fixedRate 的规则每 6 秒执行一次。
-    @Scheduled(fixedRate = 6000)
-    private void process2() {
-    }
+    //    @Scheduled(cron = "0 0/1 * * * ?")//一分钟执行一次
+    @Scheduled(cron = "0/5 * * * * ? ") // 间隔5秒执行
+    private void sendLocal() {
+        //发送消息到本服务的客户端
+        List<String> ips = IPUtils.getIpsPlus();
+        JSONArray array = JSONArray.parseArray(JSON.toJSONString(ips));
 
-    @Scheduled(initialDelay=3000,fixedRate = Long.MAX_VALUE)
-    private void process() {
-
+        Channel channel = NettyChannelHandlerPool.channel;
+        if (channel != null) {
+            channel.writeAndFlush(new TextWebSocketFrame(array.toString()));
+            log.info("搜索到的ip段{}", ips);
+        }
 
     }
-
 
 }
+

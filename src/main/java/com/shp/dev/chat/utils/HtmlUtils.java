@@ -38,9 +38,9 @@ public class HtmlUtils {
             FileUtils.copyInputStreamToFile(in, new File(htmlPath));
 
             //解压压缩包
-            UnZipUtils.unZip(new File(htmlPath), serverPath);
+            UnZipUtils.unZip(new File(htmlPath), serverPath+"zip/");
 
-            return serverPath + "html" + File.separator + "index.html";
+            return serverPath + "zip/html" + File.separator + "index.html";
         } catch (Exception e) {
             log.error("复制文件错误，{}", e.getMessage());
             return null;

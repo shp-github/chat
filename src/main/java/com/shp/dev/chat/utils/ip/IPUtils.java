@@ -24,7 +24,7 @@ public class IPUtils {
 
 
     public static void main(String[] args) {
-        List<String> ips = getIpsPlus();
+        List<String> ips = IPUtils.getIpsPlus();
         ips.forEach(System.out::println);
     }
 
@@ -77,7 +77,7 @@ public class IPUtils {
         List<String> ipList = new ArrayList<>();
         //更新网段中的ip
         for (int i = 1; i < 256; i++) {
-            String ip = "ping.bat -w 2 -n 1 " + networkSegment + "." + i;
+            String ip = "ping -w 2 -n 1 " + networkSegment + "." + i;
             Runtime.getRuntime().exec(ip).destroy();
         }
         //获取网关中的ip

@@ -1,7 +1,9 @@
 package com.shp.dev.chat.netty.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.shp.dev.chat.utils.ip.IPUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -11,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,7 +83,7 @@ public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSo
             TextWebSocketFrame frame = (TextWebSocketFrame) msg;
             String text = frame.text();
             if (text.equalsIgnoreCase("pong")) {
-                //恢复客户端pong，保持心跳
+                //回复客户端pong，保持心跳
                 NettyChannelHandlerPool.concurrentHashMap.get(ctx.channel().id().asLongText()).writeAndFlush(new TextWebSocketFrame(text));
                 return;
             }
