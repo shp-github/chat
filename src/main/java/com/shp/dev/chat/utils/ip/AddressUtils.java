@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 public class AddressUtils {
 
 
+    public static final String localIP = AddressUtils.getInnetIp();
+    public static final String networkSegment = localIP.substring(0, localIP.lastIndexOf("."));
+
     /**
      * 获取本机的内网ip地址
      *

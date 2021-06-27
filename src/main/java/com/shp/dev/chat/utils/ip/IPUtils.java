@@ -5,9 +5,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -24,7 +25,7 @@ public class IPUtils {
 
 
     public static void main(String[] args) {
-        List<String> ips = IPUtils.getIpsPlus();
+        List<String> ips = IPUtils.getIps();
         ips.forEach(System.out::println);
     }
 
@@ -142,6 +143,24 @@ public class IPUtils {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+
+    /**
+     * 正则提前字符串中的IP地址
+     * @param ipString
+     * @return
+     */
+    public static List<String> getIps(String ipString){
+        String regEx="((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)";
+        List<String> ips = new ArrayList<String>();
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(ipString);
+        while (m.find()) {
+            String result = m.group();
+            ips.add(result);
+        }
+        return ips;
     }
 
 
