@@ -8,6 +8,7 @@ import com.shp.dev.chat.utils.ReadUtils;
 import com.shp.dev.chat.utils.ResultBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,25 +64,27 @@ public class NettyController {
     @RequestMapping(value = "/selectArrayList", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("下拉选数据")
     public ResultBean selectArrayList() {
-        List list=new ArrayList();
+        List<String> list = new ArrayList<>();
         for (Map.Entry<String, String> stringStringEntry : NettyChannelHandlerPool.selectHashMap.entrySet()) {
             list.add(stringStringEntry.getValue());
         }
         return ResultBean.success(list);
     }
 
+    @SneakyThrows
     @RequestMapping(value = "/sendAll", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("群发消息")
     public ResultBean sendAll(String message) {
-        NettyWebSocketHandler.sendAllMessage(message);
+        String localIP = InetAddress.getLocalHost().getHostAddress();
+        NettyWebSocketHandler.sendAllMessage("对方IP：" + localIP + "群发消息：" + message);
         return ResultBean.success();
     }
 
     @ApiOperation("客户端发送文件到服务端")
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResultBean upload(MultipartFile file, String fileName, String frist, String last) {
-        frist = System.getProperty("user.dir") + File.separator;
-        if (file.isEmpty() || file == null || file.equals("")) {
+        frist = System.getProperty("user.dir") + File.separator + "zip/file/";
+        if (file.isEmpty()) {
             return ResultBean.error("上传失败 文件为空");
         }
         String filePath = CommonFileUtils.saveFile(file, fileName, frist, last);

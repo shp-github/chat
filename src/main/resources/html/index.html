@@ -348,7 +348,7 @@
             socket = new WebSocket(socketUrl);
             socket.onmessage = function (event) {
                 console.log("收到对方的消息", event.data);
-                $("#localDiv").append("<div><div style='float: right'><span>他：" + event.data + "</span></div></div><br/>")
+                $("#localDiv").append("<div><div ><span>对方：" + event.data + "</span></div></div><br/>")
             };
             socket.onopen = function () {
                 console.log("与对方链接成功!  \r\n")
@@ -373,6 +373,9 @@
      */
 
 
+
+    //------------------------------------------------//------------------------------------------------//------------------------------------------------
+
     //select选择联系人重新连接websocket
     function updateValue() {
         if ($("#select").val() != '请选择') {
@@ -384,10 +387,8 @@
 
     //上传文件
     function upload(event) {
-        var a = $("#url").val();
-        var b = a.split(":")[1];
-        var c = b.replace("//", "");
-        var d = "http://" + c + ":8090/netty/upload";
+        var url = $("#url").val();
+        var d = "http://" + url + ":8090/netty/upload";
         console.log(d)
         const formData = new FormData();
         formData.append('file', event.target.files[0]);
@@ -396,11 +397,13 @@
             body: formData,
         }).then(response => response.json())
             .then((data) => {
-                $("#localDiv").append("我：文件发送成功，地址：" + data.data[0] + "<br/>")
+                $("#localDiv").append("<div><div style='float: right'><span>我：文件发送成功，地址：" +  data.data[0]  + "</span></div></div><br/><br/>")
                 socket.send("收到新文件，已保存到：" + data.data[0]);
             });
     }
 
+
+    //------------------------------------------------//------------------------------------------------//------------------------------------------------
 
     //实例化sdk
     var onlineChat = new online_chat_js_sdk({
