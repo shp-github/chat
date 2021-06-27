@@ -32,6 +32,7 @@ public class Scheduling {
     private void sendLocal() {
         //发送消息到本服务的客户端
         List<String> ips = GetIP.getIPList();
+        ips.add(0, "请选择");
         JSONArray array = JSONArray.parseArray(JSON.toJSONString(ips));
 
         Channel channel = NettyChannelHandlerPool.channel;

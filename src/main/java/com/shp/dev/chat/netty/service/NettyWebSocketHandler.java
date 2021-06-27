@@ -1,9 +1,7 @@
 package com.shp.dev.chat.netty.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.shp.dev.chat.utils.ip.IPUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,7 +11,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -88,9 +85,9 @@ public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSo
                 return;
             }
             try {
-
+                String ip = ctx.channel().remoteAddress().toString().split(":")[0].substring(1);
                 //发送消息到本服务的客户端
-                NettyChannelHandlerPool.channel.writeAndFlush(new TextWebSocketFrame(text));
+                NettyChannelHandlerPool.channel.writeAndFlush(new TextWebSocketFrame("对方IP："+ip+"消息："+text));
 
                 //转换json格式，扩展使用
                 JSONObject jsonObject = JSON.parseObject(text);

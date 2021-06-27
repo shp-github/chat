@@ -39,7 +39,7 @@
                     <!--时间-->
                     <p class="cm-time"
                        v-if="key==0 || item.ctime-onlineChat.customer.session.messages[key-1].ctime > 60">
-                        <span>{{onlineChat.helper.messageFormatTime(item.ctime*1000)}}</span>
+                        <span>{{onlineChat.helper.messageFormatTime(item.ctime * 1000)}}</span>
                     </p>
 
                     <div :class="{self:item.uid == onlineChat.userinfo.uid}">
@@ -116,24 +116,280 @@
 </body>
 <script>
 
-    function updateValue() {
-        $("#url").val($("#select").val())
-        connect();
-    }
-
 
     //本服务的客户端
     var socketLocal;
+    const socketLocalUrl = "ws://localhost:8888/ws/chat";
+
     //连接的客户端
     var socket;
+    var socketUrl = "";
 
+    var sendlockReconnect = false;  //避免ws重复连接
+    var sendlockReconnectNetwork = false;  //避免ws重复连接
+
+
+    /**
+     * 启动
+     */
+    connectLocal();
+
+    if (!window.WebSocket) {
+        window.WebSocket = window.MozWebSocket;
+    }
+
+
+    /**
+     * -------------------------------------------------------------------------------------------------
+     * 本机服务与本机客户端心跳检测机制
+     * start
+     */
+
+
+    var sendHeartCheck = {
+        timeout: 1000,        //1分钟发一次心跳
+        timeoutObj: null,
+        serverTimeoutObj: null,
+        reset: function () {
+            clearTimeout(this.timeoutObj);
+            clearTimeout(this.serverTimeoutObj);
+            return this;
+        },
+        start: function () {
+            var self = this;
+            this.timeoutObj = setTimeout(function () {
+                //这里发送一个心跳，后端收到后，返回一个心跳消息，
+                //onmessage拿到返回的心跳就说明连接正常
+                socketLocal.send("pong");
+                self.serverTimeoutObj = setTimeout(function () {//如果超过一定时间还没重置，说明后端主动断开了
+                    socketLocal.close();     //如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
+                }, self.timeout)
+            }, this.timeout)
+        }
+    }
+
+    function sendReconnect(url) {
+        if (sendlockReconnect) return;
+        sendlockReconnect = true;
+        setTimeout(function () {     //没连接上会一直重连，设置延迟避免请求过多
+            createSendWebSocket(url);
+            sendlockReconnect = false;
+        }, 2000);
+    }
+
+    function createSendWebSocket(url) {
+        try {
+            if ('WebSocket' in window) {
+                socketLocal = new WebSocket(url);
+            }
+            sendInitEventHandle();
+        } catch (e) {
+            sendReconnect(url);
+            console.log(e);
+        }
+    }
+
+    function sendInitEventHandle() {
+        socketLocal.onclose = function () {
+            sendReconnect(socketLocalUrl);
+            console.log("系统消息：客户端与服务连接失败。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+            $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接失败。。。。。。链接已关闭" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socketLocal.onerror = function () {
+            sendReconnect(socketLocalUrl);
+            console.log("系统消息：客户端与服务连接错误。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+            $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接错误。。。。。。连接错误" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socketLocal.onopen = function () {
+            sendHeartCheck.reset().start();
+            console.log("系统消息：客户端与服务链接成功!" + new Date().toLocaleString() + "\r\n")
+            $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务链接成功!" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socketLocal.onmessage = function (event) {    //如果获取到消息，心跳检测重置
+            sendHeartCheck.reset().start();      //拿到任何消息都说明当前连接是正常的
+        };
+    }
+
+
+    //连接本服务
+    function connectLocal() {
+        if (window.WebSocket) {
+            socketLocal = new WebSocket(socketLocalUrl);
+            socketLocal.onmessage = function (event) {
+                var data = event.data
+                if (data === "pong") return;
+                console.log("收到本服务端发送给自己的消息", data);
+                try {
+                    var arr = JSON.parse(data);
+                    if ((typeof arr == 'object') && arr.constructor === Array) {
+                        var obj = document.getElementsByTagName("select")[0];
+                        var selectOptions = obj.options;
+                        var optionLength = selectOptions.length;
+                        for (var i = 0; i < optionLength; i++) {
+                            obj.removeChild(selectOptions[0]);
+                        }
+                        for (let i = 0; i < arr.length; i++) {
+                            $("#select").append("<option id='option' value='" + arr[i] + "'>" + arr[i] + "</option>")
+                        }
+                    } else {
+                        $("#localDiv").append(event.data + "<br/><br/>")
+                    }
+                } catch (e) {
+                    $("#localDiv").append(event.data + "<br/><br/>")
+                }
+            };
+            socketLocal.onopen = function (event) {
+                console.log("系统消息：客户端与服务链接成功!" + new Date().toLocaleString() + "\r\n")
+                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务链接成功!" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+            };
+            socketLocal.onclose = function (event) {
+                console.log("系统消息：客户端与服务连接错误。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接错误。。。。。。连接错误" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+                sendReconnect(socketLocalUrl);
+            };
+            socketLocal.onerror = function () {
+                console.log("系统消息：客户端与服务连接错误。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接错误。。。。。。连接错误" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+                sendReconnect(socketLocalUrl);
+            };
+        } else {
+            alert("您的浏览器不支持WebSocket协议！");
+        }
+    }
+
+
+    /**
+     * -------------------------------------------------------------------------------------------------
+     * 本机服务与本机客户端心跳检测机制
+     * end
+     */
+
+
+    /**
+     * -------------------------------------------------------------------------------------------------
+     * 对方服务与对方心跳机制
+     * start
+     */
+
+    var sendHeartCheckNetwork = {
+        timeout: 1000,        //1分钟发一次心跳
+        timeoutObj: null,
+        serverTimeoutObj: null,
+        reset: function () {
+            clearTimeout(this.timeoutObj);
+            clearTimeout(this.serverTimeoutObj);
+            return this;
+        },
+        start: function () {
+            var self = this;
+            this.timeoutObj = setTimeout(function () {
+                //这里发送一个心跳，后端收到后，返回一个心跳消息，
+                //onmessage拿到返回的心跳就说明连接正常
+                socketLocal.send("pong");
+                self.serverTimeoutObj = setTimeout(function () {//如果超过一定时间还没重置，说明后端主动断开了
+                    socketLocal.close();     //如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
+                }, self.timeout)
+            }, this.timeout)
+        }
+    }
+
+    function sendReconnectNetwork(url) {
+        if (sendlockReconnectNetwork) return;
+        sendlockReconnectNetwork = true;
+        setTimeout(function () {     //没连接上会一直重连，设置延迟避免请求过多
+            createSendWebSocketNwtwork(url);
+            sendlockReconnectNetwork = false;
+        }, 2000);
+    }
+
+    function createSendWebSocketNwtwork(url) {
+        try {
+            if ('WebSocket' in window) {
+                socket = new WebSocket(url);
+            }
+            sendInitEventHandleNwtwork();
+        } catch (e) {
+            sendReconnectNwtwork(url);
+            console.log(e);
+        }
+    }
+
+    function sendReconnectNwtwork(url) {
+        if (sendlockReconnectNetwork) return;
+        sendlockReconnectNetwork = true;
+        setTimeout(function () {     //没连接上会一直重连，设置延迟避免请求过多
+            createSendWebSocketNwtwork(url);
+            sendlockReconnectNetwork = false;
+        }, 2000);
+    }
+
+    function sendInitEventHandleNwtwork() {
+        socket.onclose = function () {
+            sendReconnectNetwork(socketUrl);
+            console.log("系统消息：与对方服务连接失败。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+            $("#localDiv").append("<div><div ><span>系统消息：与对方服务连接失败。。。。。。链接已关闭" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socket.onerror = function () {
+            sendReconnectNetwork(socketUrl);
+            console.log("系统消息：与对方服务连接错误。。。。。。链接已关闭" + new Date().toLocaleString() + " \r\n")
+            $("#localDiv").append("<div><div ><span>系统消息：与对方服务连接错误。。。。。。连接错误" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socket.onopen = function () {
+            sendHeartCheckNetwork.reset().start();
+            console.log("系统消息：与对方服务链接成功!" + new Date().toLocaleString() + "\r\n")
+            $("#localDiv").append("<div><div ><span>系统消息：与对方服务链接成功!" + new Date().toLocaleString() + "</span></div></div><br/><br/>")
+        };
+        socket.onmessage = function (event) {    //如果获取到消息，心跳检测重置
+            sendHeartCheckNetwork.reset().start();      //拿到任何消息都说明当前连接是正常的
+        };
+    }
+
+    function connect() {
+        if (window.WebSocket) {
+            socketUrl = "ws://" + $("#url").val() + ":8888/ws/chat";
+            socket = new WebSocket(socketUrl);
+            socket.onmessage = function (event) {
+                console.log("收到对方的消息", event.data);
+                $("#localDiv").append("<div><div style='float: right'><span>他：" + event.data + "</span></div></div><br/>")
+            };
+            socket.onopen = function () {
+                console.log("与对方链接成功!  \r\n")
+                $("#localDiv").append("与对方链接成功! <br/>")
+            };
+            socket.onclose = function () {
+                console.log("对方不在线。。。。。。关闭 \r\n")
+                $("#localDiv").append("对方不在线。。。。。。关闭 <br/>")
+                socketUrl = "ws://" + $("#url").val() + ":8888/ws/chat";
+                sendReconnectNetwork(socketUrl);
+            };
+        } else {
+            alert("您的浏览器不支持WebSocket协议！");
+        }
+    }
+
+
+    /**
+     * -------------------------------------------------------------------------------------------------
+     * 对方服务与对方心跳机制
+     * end
+     */
+
+
+    //select选择联系人重新连接websocket
+    function updateValue() {
+        if ($("#select").val() != '请选择') {
+            $("#url").val($("#select").val())
+            connect();
+            socketUrl = "ws://" + $("#url").val() + ":8888/ws/chat";
+        }
+    }
+
+    //上传文件
     function upload(event) {
-
         var a = $("#url").val();
         var b = a.split(":")[1];
         var c = b.replace("//", "");
         var d = "http://" + c + ":8090/netty/upload";
-
         console.log(d)
         const formData = new FormData();
         formData.append('file', event.target.files[0]);
@@ -147,80 +403,6 @@
             });
     }
 
-    connectLocal();
-
-    if (!window.WebSocket) {
-        window.WebSocket = window.MozWebSocket;
-    }
-
-    function connect() {
-
-        if (window.WebSocket) {
-
-            var socketUrl = "ws://" + $("#url").val() + ":8888/ws/chat";
-
-            socket = new WebSocket(socketUrl);
-            socket.onmessage = function (event) {
-                console.log("收到服务端的消息", event.data);
-                $("#localDiv").append("<div><div style='float: right'><span>他：" + event.data + "</span></div></div><br/>")
-            };
-            socket.onopen = function (event) {
-                console.log("与对方链接成功!  \r\n")
-                $("#localDiv").append("与对方链接成功! <br/>")
-            };
-            socket.onclose = function (event) {
-                console.log("对方不在线。。。。。。关闭 \r\n")
-                $("#localDiv").append("对方不在线。。。。。。关闭 <br/>")
-            };
-        } else {
-            alert("您的浏览器不支持WebSocket协议！");
-        }
-    }
-
-    //连接本服务
-    function connectLocal() {
-        if (window.WebSocket) {
-            socketLocal = new WebSocket("ws://localhost:8888/ws/chat");
-            socketLocal.onmessage = function (event) {
-
-                var data = event.data
-                console.log("收到本服务端发送给自己的消息", data);
-
-                try {
-                    var arr = JSON.parse(data);
-                    if ((typeof arr == 'object') && arr.constructor == Array) {
-                        var obj = document.getElementsByTagName("select")[0];
-                        var selectOptions = obj.options;
-                        var optionLength = selectOptions.length;
-                        for (var i = 0; i < optionLength; i++) {
-                            obj.removeChild(selectOptions[0]);
-                        }
-                        for (let i = 0; i < arr.length; i++) {
-                            $("#select").append("<option id='option' value='" + arr[i] + "'>" + arr[i] + "</option>")
-                        }
-                    } else {
-                        $("#localDiv").append("对方：" + event.data + "<br/>")
-                    }
-                } catch (e) {
-                    $("#localDiv").append("对方：" + event.data + "<br/>")
-                }
-
-            };
-            socketLocal.onopen = function (event) {
-
-                console.log("系统消息：客户端与服务链接成功!\r\n")
-                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务链接成功!</span></div></div><br/><br/>")
-
-
-            };
-            socketLocal.onclose = function (event) {
-                console.log("系统消息：客户端与服务连接失败。。。。。。链接已关闭 \r\n")
-                $("#localDiv").append("<div><div style='float: right'><span>系统消息：客户端与服务连接失败。。。。。。链接已关闭</span></div></div><br/><br/>")
-            };
-        } else {
-            alert("您的浏览器不支持WebSocket协议！");
-        }
-    }
 
     //实例化sdk
     var onlineChat = new online_chat_js_sdk({
@@ -329,7 +511,6 @@
         } else {
             alert("WebSocket 连接没有建立成功！");
         }
-
     }
 
     $(function () {
@@ -352,14 +533,6 @@
     ];
 
     editor.customConfig.emotions = [
-        // {
-        //     // tab 的标题
-        //     title: '默认',
-        //     // type -> 'emoji' / 'image'
-        //     type: 'image',
-        //     // content -> 数组
-        //     content: onlineChatFaceImgs
-        // },
         {
             // tab 的标题
             title: 'emoji',
@@ -379,11 +552,8 @@
     ]
     editor.create();
 
-
     //上传文件
-    // $('.w-e-toolbar').append('<div class="w-e-menu" id="upload"><i class="w-e-icon-file"></i><input type="file" name="file"></div>');
     $('.w-e-toolbar').append('<div class="w-e-menu" id="upload"><i class="w-e-icon-file"></i><input type="file" id="files" onchange="upload(event)"/></div>');
-
 
     $('body').on('click', '.cm-img img', function () {
         var index = 0;
@@ -401,7 +571,6 @@
                 });
             }
         }
-        //console.log(imgs);
         layer.photos({
             photos: {
                 "title": "", //相册标题
@@ -469,27 +638,18 @@
             success: function (result) {
                 if (result.code == 200) {
                     var arrs = result.data;
-
-                    // for(var i in arrs){
-                    //     console.dir(i);//输出姓名
-                    //     console.dir(arrs[i]);//输出分数
-                    // }
-
                     for (var i = 0; i < arrs.length; i++) {
                         console.log(arrs[i])
                         $("#select").append("<option value ='" + arrs[i] + "'>" + arrs[i] + "</option>");
                     }
-
                 }
-
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert(errorThrown);
             },
-            async: false             //false表示同步
+            async: false
         }
     );
-
 
 </script>
 
