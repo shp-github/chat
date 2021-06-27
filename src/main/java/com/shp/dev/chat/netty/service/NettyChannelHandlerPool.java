@@ -31,6 +31,5 @@ public class NettyChannelHandlerPool {
     //一对一下拉选列表数据
     public static ConcurrentHashMap<String, String> selectHashMap = new ConcurrentHashMap<>();
 
-
 }
 
