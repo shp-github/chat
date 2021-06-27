@@ -1,4 +1,4 @@
-package com.shp.dev.chat.utils;
+package com.shp.dev.chat.utils.ip;
 
 
 import lombok.SneakyThrows;
@@ -33,7 +33,9 @@ public class IPUtils {
         String networkSegment = localIP.substring(0, localIP.lastIndexOf("."));
         //更新网段中的ip
         for (int i = 1; i < 256; i++) {
-            Runtime.getRuntime().exec("ping -w 2 -n 1 " + networkSegment + "." + i).destroy();
+//            String ip="ping -w 2 -n 1 " + networkSegment + "." + i;
+            String ip = "ping " + networkSegment + "." + i;
+            Runtime.getRuntime().exec(ip).destroy();
         }
         //获取网关中的ip
         Process process = Runtime.getRuntime().exec("arp -a");
