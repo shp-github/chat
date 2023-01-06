@@ -9,12 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO 通道组池，管理所有websocket连接
- * @CreateTime: 2021/3/16 17:20
- * @PackageName: com.shp.dev.network.common.util.netty
- * @ProjectName: network
+ * 通道组池，管理所有websocket连接
  */
 @Component
 public class NettyChannelHandlerPool {

@@ -1,4 +1,4 @@
-package com.shp.dev.chat.conf;
+package com.shp.dev.chat.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +11,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO swagger的配置
- * @CreateTime: 2021/4/2 23:12
- * @PackageName: com.shp.dev.chat.conf
- * @ProjectName: chat
+ * swagger的配置
  */
 @Configuration
 @EnableSwagger2
@@ -26,14 +21,14 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .pathMapping("/")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.shp.dev"))//扫描控制层的包
+                .apis(RequestHandlerSelectors.basePackage("com.shp.dev"))
                 .paths(PathSelectors.any())
                 .build().apiInfo(new ApiInfoBuilder()
-                        .title("Api文档")//标题
-                        .description("description")//详细内容
-                        .version("1.0")//版本号
-                        .contact(new Contact("shp","http://www.shp.bio/","2948299576@qq.com"))//作者--地址--邮箱
-                        .licenseUrl("http://www.shp.bio/")//网址
+                        .title("Api文档")
+                        .description("description")
+                        .version("1.0")
+                        .contact(new Contact("shp","http://www.shp.bio/","2948299576@qq.com"))
+                        .licenseUrl("http://www.shp.bio/")
                         .build());
     }
 }

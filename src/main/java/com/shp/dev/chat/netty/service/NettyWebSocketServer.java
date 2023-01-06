@@ -15,18 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO 配置NettyWebSocket服务
- * @CreateTime: 2021/3/16 17:19
- * @PackageName: com.shp.dev.network.common.util.netty
- * @ProjectName: network
+ * 配置NettyWebSocket服务
  */
-
 @Slf4j
 public class NettyWebSocketServer {
 
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     public void start() {
 
         EventLoopGroup parentGroup = new NioEventLoopGroup(), childGroup = new NioEventLoopGroup();

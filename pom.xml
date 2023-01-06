@@ -8,20 +8,23 @@
         <version>2.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>com.shp.dev</groupId>
     <artifactId>chat</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>chat</name>
+
     <description>实现电脑局域网之间通信</description>
+
     <properties>
         <java.version>1.8</java.version>
-        <fastjson.version>1.2.58</fastjson.version>
+        <fastjson.version>1.2.67_noneautotype2</fastjson.version>
         <swagger.version>2.9.2</swagger.version>
         <swagger-solve.version>1.5.21</swagger-solve.version>
-        <fileupload.version>1.3.1</fileupload.version>
+        <fileupload.version>1.4</fileupload.version>
         <hutool.version>4.6.6</hutool.version>
     </properties>
     <dependencies>
+
         <!-- 文件上传组件 -->
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -45,21 +48,16 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
-        <!--websocet-->
+        <!--WebSocet-->
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
-            <version>1.3.8</version>
+            <version>1.5.0</version>
         </dependency>
-        <!--springboot-->
+        <!--SpringBoot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -69,11 +67,6 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
             <version>${swagger.version}</version>
         </dependency>
         <!--解决进入swagger页面报类型转换错误，排除2.9.2中的引用，手动增加1.5.21版本-->
@@ -100,12 +93,104 @@
 
     </dependencies>
 
+
     <build>
         <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.6.3</version>
+                <configuration>
+                    <name>${project.name}</name>
+                    <!--配置程序入口-->
+                    <mainClass>com.shp.dev.chat.ChatApplication</mainClass>
+                    <!--在应用程序中嵌入自定义 JRE-->
+                    <jrePath>C:\Program Files\Java\jre1.8.0_333</jrePath>
+                    <bundleJre>true</bundleJre>
+                    <!--为应用程序生成安装程序-->
+                    <generateInstaller>true</generateInstaller>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundling-for-windows</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <platform>windows</platform>
+                            <createZipball>true</createZipball>
+                            <administratorRequired>true</administratorRequired>
+                            <winConfig>
+                                <!-- general properties -->
+                                <!--生成安装程序-->
+                                <generateSetup>true</generateSetup>
+                                <!--生成 MSI 安装程序-->
+                                <generateMsi>false</generateMsi>
+                                <!--生成 MSI 合并模块-->
+                                <generateMsm>false</generateMsm>
+                                <!-- setup generation properties -->
+                                <!--安装程序安装模式：是否需要管理权限-->
+                                <!--<setupMode>installForAllUsers</setupMode>-->
+                                <!--如果设置为true，安装程序将不会要求创建桌面图标。-->
+                                <createDesktopIconTask>true</createDesktopIconTask>
+                                <!--如果将其设置为true，安装程序将不会显示“选择目标位置”向导页面。-->
+                                <disableDirPage>false</disableDirPage>
+                                <!--如果设置为true，安装程序将不会显示安装完成向导页面。-->
+                                <disableFinishedPage>false</disableFinishedPage>
+                                <!--使用设置语言进行映射-->
+                                <setupLanguages>
+                                    <!--<english>compiler:Default.isl</english>-->
+                                    <spanish>compiler:Languages\ChineseSimplified.isl</spanish>
+                                </setupLanguages>
+                            </winConfig>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bundling-for-linux</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <platform>linux</platform>
+                            <createTarball>true</createTarball>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bundling-for-mac</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <platform>mac</platform>
+                            <createTarball>true</createTarball>
+                        </configuration>
+                    </execution>
+                </executions>
+
             </plugin>
         </plugins>
     </build>

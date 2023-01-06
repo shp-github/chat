@@ -13,13 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO
- * @CreateTime: 2021/3/16 17:21
- * @PackageName: com.shp.dev.network.common.util.netty
- * @ProjectName: network
+ * 消息处理
  */
 @Slf4j
 public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
@@ -57,17 +53,17 @@ public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSo
         NettyChannelHandlerPool.concurrentHashMap.remove(ctx.channel().id().asLongText());
     }
 
-    @SneakyThrows
     @Override
+    @SneakyThrows(Exception.class)
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
         //首次连接是FullHttpRequest，处理链接地址中拼接的参数
         //ws://127.0.0.1:12345/ws?uid=666&gid=777
-        if (null != msg && msg instanceof FullHttpRequest) {
+        if (msg instanceof FullHttpRequest) {
             FullHttpRequest request = (FullHttpRequest) msg;
             //获取完整ws的URL地址
             String uri = request.uri();
-            Map paramMap = getUrlParams(uri);
+            Map<String,String> paramMap = getUrlParams(uri);
             log.info("nettywebsocket接收到的参数是：{}", JSON.toJSONString(paramMap));
             //如果url包含参数，需要处理
             if (uri.contains("?")) {
@@ -79,7 +75,7 @@ public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSo
             //正常的TEXT消息类型
             TextWebSocketFrame frame = (TextWebSocketFrame) msg;
             String text = frame.text();
-            if (text.equalsIgnoreCase("pong")) {
+            if ("pong".equalsIgnoreCase(text)) {
                 //回复客户端pong，保持心跳
                 NettyChannelHandlerPool.concurrentHashMap.get(ctx.channel().id().asLongText()).writeAndFlush(new TextWebSocketFrame(text));
                 return;
@@ -116,7 +112,7 @@ public class NettyWebSocketHandler extends SimpleChannelInboundHandler<TextWebSo
     /**
      * 提取参数
      */
-    private static Map getUrlParams(String url) {
+    private static Map<String,String> getUrlParams(String url) {
         Map<String, String> map = new HashMap<>();
         url = url.replace("?", ";");
         if (!url.contains(";")) {

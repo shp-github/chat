@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,10 +29,9 @@ public class AddressUtils {
     /**
      * 获取本机的内网ip地址
      *
-     * @param
      * @return String
      */
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     public static String getInnetIp() {
         String localip = null;// 本地IP，如果没有配置外网IP则返回它
         Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -53,12 +53,9 @@ public class AddressUtils {
 
     /**
      * 获取本机的外网ip地址
-     *
-     * @param
-     * @return String
      */
-    @SneakyThrows
-    public static String getV4IP() {
+    @SneakyThrows(Exception.class)
+    public static String getIpv4() {
         String ip = "";
         String read = "";
         StringBuilder inputLine = new StringBuilder();
@@ -66,7 +63,7 @@ public class AddressUtils {
         URL url = new URL("http://ip.chinaz.com");
         HttpURLConnection urlConnection = null;
         urlConnection = (HttpURLConnection) url.openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
         while ((read = in.readLine()) != null) {
             inputLine.append(read).append("\r\n");
         }

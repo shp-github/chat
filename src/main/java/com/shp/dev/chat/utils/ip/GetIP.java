@@ -6,18 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO
- * @CreateTime: 2021/6/27 15:08
- * @PackageName: com.shp.dev.chat.utils.ip
- * @ProjectName: chat
- */
+
 public class GetIP {
 
     public static void main(String[] args) {
@@ -34,7 +28,7 @@ public class GetIP {
     /**
      * 获取ip列表
      */
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     public static List<String> getIPList() {
         String localIP = InetAddress.getLocalHost().getHostAddress();
         //String localIP = AddressUtils.getInnetIp();
@@ -61,7 +55,7 @@ public class GetIP {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
 

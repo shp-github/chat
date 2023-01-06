@@ -32,10 +32,8 @@ public class IPUtils {
 
     /**
      * 获取局域网ip
-     *
-     * @return
      */
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     public static List<String> getIpsPlus() {
         List<String> ipList = new ArrayList<>();
         Runtime runtime = Runtime.getRuntime();
@@ -72,7 +70,7 @@ public class IPUtils {
      *
      * @return
      */
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     public static List<String> getIps() {
         List<String> ipList = new ArrayList<>();
         //更新网段中的ip
@@ -98,7 +96,7 @@ public class IPUtils {
     }
 
 
-    /*
+    /**
      * 判断是否为整数
      * @param str 传入的字符串
      * @return 是整数返回true,否则返回false
@@ -119,8 +117,6 @@ public class IPUtils {
 
     /**
      * 执行bat脚本
-     *
-     * @param file
      */
     private static void callCmd(File file) {
         StringBuilder sb = new StringBuilder();
@@ -130,13 +126,13 @@ public class IPUtils {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
             in.close();
             try {
                 child.waitFor();
             } catch (InterruptedException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
             log.info(sb.toString());
         } catch (IOException e) {
@@ -147,8 +143,6 @@ public class IPUtils {
 
     /**
      * 正则提前字符串中的IP地址
-     * @param ipString
-     * @return
      */
     public static List<String> getIps(String ipString){
         String regEx="((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)";

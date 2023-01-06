@@ -1,11 +1,11 @@
 package com.shp.dev.chat.netty.controller;
 
+import com.shp.dev.chat.model.R;
 import com.shp.dev.chat.netty.service.NettyChannelHandlerPool;
 import com.shp.dev.chat.netty.service.NettyWebSocketHandler;
 import com.shp.dev.chat.utils.CommonFileUtils;
-import com.shp.dev.chat.utils.HtmlUtils;
+import com.shp.dev.chat.utils.HtmlUtil;
 import com.shp.dev.chat.utils.ReadUtils;
-import com.shp.dev.chat.utils.ResultBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
@@ -23,14 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO
- * @CreateTime: 2021/4/2 23:11
- * @PackageName: com.shp.dev.chat.netty
- * @ProjectName: chat
- */
+
 @RestController
 @RequestMapping("/netty")
 @CrossOrigin
@@ -39,59 +32,59 @@ public class NettyController {
 
     @RequestMapping(value = "/getGroup", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("查询组中所有人")
-    public ResultBean getGroup() {
+    public R getGroup() {
         List<String> list = new ArrayList<>();
         NettyChannelHandlerPool.channelGroup.forEach(
                 channel -> {
                     list.add(channel.id().asLongText());
                 }
         );
-        return ResultBean.success(list);
+        return R.success(list);
     }
 
     @RequestMapping(value = "/getMap", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("查询所有个体map中所有人")
-    public ResultBean getMap() {
-        return ResultBean.success(NettyChannelHandlerPool.concurrentHashMap);
+    public R getMap() {
+        return R.success(NettyChannelHandlerPool.concurrentHashMap);
     }
 
     @RequestMapping(value = "/selectHashMap", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("下拉选数据")
-    public ResultBean selectHashMap() {
-        return ResultBean.success(NettyChannelHandlerPool.selectHashMap);
+    public R selectHashMap() {
+        return R.success(NettyChannelHandlerPool.selectHashMap);
     }
 
     @RequestMapping(value = "/selectArrayList", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("下拉选数据")
-    public ResultBean selectArrayList() {
+    public R selectArrayList() {
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, String> stringStringEntry : NettyChannelHandlerPool.selectHashMap.entrySet()) {
             list.add(stringStringEntry.getValue());
         }
-        return ResultBean.success(list);
+        return R.success(list);
     }
 
-    @SneakyThrows
+    @SneakyThrows(Exception.class)
     @RequestMapping(value = "/sendAll", method = {RequestMethod.POST, RequestMethod.GET})
     @ApiOperation("群发消息")
-    public ResultBean sendAll(String message) {
-        String localIP = InetAddress.getLocalHost().getHostAddress();
-        NettyWebSocketHandler.sendAllMessage("对方IP：" + localIP + "群发消息：" + message);
-        return ResultBean.success();
+    public R sendAll(String message) {
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        NettyWebSocketHandler.sendAllMessage("对方IP：" + ip + "群发消息：" + message);
+        return R.success();
     }
 
     @ApiOperation("客户端发送文件到服务端")
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public ResultBean upload(MultipartFile file, String fileName, String frist, String last) {
+    public R upload(MultipartFile file, String fileName, String frist, String last) {
         frist = System.getProperty("user.dir") + File.separator + "zip/file/";
         if (file.isEmpty()) {
-            return ResultBean.error("上传失败 文件为空");
+            return R.error("上传失败 文件为空");
         }
         String filePath = CommonFileUtils.saveFile(file, fileName, frist, last);
         if (filePath != null) {
-            return ResultBean.success("上传成功", filePath);
+            return R.success("上传成功", filePath);
         }
-        return ResultBean.error("上传失败");
+        return R.error("上传失败");
     }
 
     @RequestMapping(value = "/writeHtml", method = {RequestMethod.POST, RequestMethod.GET})
@@ -104,7 +97,7 @@ public class NettyController {
             //创建bat文件
             p = res.getWriter();
             //复制出html文件
-            String htmlPath = HtmlUtils.getHtmlPath();
+            String htmlPath = HtmlUtil.getHtmlPath();
             //输出页面
             String s = ReadUtils.readText(new File(htmlPath));
             p.print(s);

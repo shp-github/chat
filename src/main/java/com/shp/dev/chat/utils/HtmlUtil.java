@@ -1,5 +1,6 @@
 package com.shp.dev.chat.utils;
 
+import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
@@ -7,26 +8,14 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.File;
 import java.io.InputStream;
 
-/**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO
- * @CreateTime: 2021/4/3 21:30
- * @PackageName: com.shp.dev.chat.utils
- * @ProjectName: chat
- */
 
 @Slf4j
-public class HtmlUtils {
+public class HtmlUtil {
 
 
     /**
-     * @CreateBy: Administrator
-     * @version：1.0
-     * @Description: TODO 获取html文件地址
-     * @CreateTime: 2021/4/4 21:19
-     * @param:
-     * @return: java.lang.String
+     * 解压zip文件，获取html地址
+     * @return html地址
      */
     public static String getHtmlPath() {
         try {
@@ -43,9 +32,10 @@ public class HtmlUtils {
             return serverPath + "zip/html" + File.separator + "index.html";
         } catch (Exception e) {
             log.error("复制文件错误，{}", e.getMessage());
-            return null;
+            return "";
         }
     }
+
 
 
 

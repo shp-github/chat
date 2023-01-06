@@ -1,4 +1,4 @@
-package com.shp.dev.chat.conf;
+package com.shp.dev.chat.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -14,20 +14,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.List;
 
 /**
- * @CreateBy: shp
- * @Version: 1.0
- * @Description: TODO 定时同步到redis里
- * @CreateTime: 2020/9/25 16:49
- * @PackageName: com.shp.dev.network.common.util.start
- * @ProjectName: network
+ * 定时获取ip
  */
-@Configuration      //1.主要用于标记配置类，兼备Component的效果。
-@EnableScheduling   // 2.开启定时任务
 @Slf4j
+@Configuration
+@EnableScheduling
 public class Scheduling {
 
 
-    //    @Scheduled(cron = "0 0/1 * * * ?")//一分钟执行一次
     @Scheduled(cron = "0/5 * * * * ? ") // 间隔5秒执行
     private void sendLocal() {
         //发送消息到本服务的客户端
