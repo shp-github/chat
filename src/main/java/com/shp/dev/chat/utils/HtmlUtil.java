@@ -1,11 +1,11 @@
 package com.shp.dev.chat.utils;
 
-import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -24,10 +24,10 @@ public class HtmlUtil {
             InputStream in = cpr.getInputStream();
             String htmlPath = serverPath + "zip/html.zip";
 
-            FileUtils.copyInputStreamToFile(in, new File(htmlPath));
+            copyInputStreamToFile(in, new File(htmlPath));
 
             //解压压缩包
-            UnZipUtils.unZip(new File(htmlPath), serverPath+"zip/");
+            UnZipUtil.unZip(new File(htmlPath), serverPath+"zip/");
 
             return serverPath + "zip/html" + File.separator + "index.html";
         } catch (Exception e) {
@@ -36,6 +36,44 @@ public class HtmlUtil {
         }
     }
 
+
+
+    private static void copyInputStreamToFile(InputStream source, File destination) throws IOException {
+        try {
+            FileOutputStream output = openOutputStream(destination);
+            try {
+                IOUtil.copy(source, output);
+                output.close(); // don't swallow close Exception if copy completes normally
+            } finally {
+                IOUtil.closeQuietly(output);
+            }
+        } finally {
+            IOUtil.closeQuietly(source);
+        }
+    }
+
+    public static FileOutputStream openOutputStream(File file) throws IOException {
+        return openOutputStream(file, false);
+    }
+
+    public static FileOutputStream openOutputStream(File file, boolean append) throws IOException {
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                throw new IOException("File '" + file + "' exists but is a directory");
+            }
+            if (!file.canWrite()) {
+                throw new IOException("File '" + file + "' cannot be written to");
+            }
+        } else {
+            File parent = file.getParentFile();
+            if (parent != null) {
+                if (!parent.mkdirs() && !parent.isDirectory()) {
+                    throw new IOException("Directory '" + parent + "' could not be created");
+                }
+            }
+        }
+        return new FileOutputStream(file, append);
+    }
 
 
 

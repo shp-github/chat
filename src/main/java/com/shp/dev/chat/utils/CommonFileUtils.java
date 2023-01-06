@@ -7,32 +7,26 @@ import sun.misc.BASE64Decoder;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * @CreateBy: shp
- * @Version: 1.0
- * @Description: TODO 通用文件操作工具类
- * @CreateTime: 2021/1/19 16:39
- * @PackageName: com.shp.dev.network.common.util
- * @ProjectName: network
+ * 通用文件操作工具类
  */
-
 @Slf4j
 public class CommonFileUtils {
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 保存文件
-     * @CreateTime: 2021/1/19 21:12
-     * @param: object 源文件： 本地文件路径、 本地文件、 在线文件地址、 base64字符串 （上传在线图片和base64字符串时需要传文件名，目的是获取文件后缀，因为其没有后缀）
-     * @param: fileName 文件名称
-     * @param: frist 路径开头
-     * @param: last 路径结尾
-     * @return: java.lang.String  返回文件所在地址 默认会创建年/月/日作为中间的文件夹
+     * 保存文件
+     * @param object 源文件： 本地文件路径、 本地文件、 在线文件地址、 base64字符串 （上传在线图片和base64字符串时需要传文件名，目的是获取文件后缀，因为其没有后缀）
+     * @param fileName 文件名称
+     * @param frist 路径开头
+     * @param last 路径结尾
+     * @return 返回文件所在地址 默认会创建年/月/日作为中间的文件夹
      */
     public static String saveFile(Object object, String fileName, String frist, String last) {
         fileName = isNull(fileName) ? UUID.randomUUID().toString().replace("-", "") : fileName;
@@ -40,13 +34,7 @@ public class CommonFileUtils {
     }
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 创建目录
-     * @CreateTime: 2021/1/19 21:29
-     * @param: frist
-     * @param: last
-     * @return: java.lang.String
+     * 创建目录
      */
     public static String createDirectory(String frist, String last) {
         String path = "";
@@ -59,20 +47,15 @@ public class CommonFileUtils {
         }
         File dirFile = new File(path);
         if (!dirFile.exists()) {
-            dirFile.mkdirs();
+            boolean mkdirs = dirFile.mkdirs();
+            log.info("创建目录：{}",mkdirs);
         }
         return path;
     }
 
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 保存文件到本地
-     * @CreateTime: 2021/1/19 18:05
-     * @param: object
-     * @param: outFile
-     * @return: java.lang.String
+     * 保存文件到本地
      */
     public static String saveFile(Object object, String outFile) {
         try {
@@ -81,13 +64,13 @@ public class CommonFileUtils {
                 String str = (String) object;
                 File file = new File(str);
                 String suffix = getSuffix(object);
-                outFile += str.indexOf(suffix) != -1 ? "" : suffix;
+                outFile += str.contains(suffix) ? "" : suffix;
                 //本地有此文件
                 if (file.exists()) {
                     return writeByFile(file, outFile);
                 } else {
                     //保存在线图片
-                    if (writeByURL(str, outFile) != null) {
+                    if (writeUrl(str, outFile) != null) {
                         return outFile;
                     } else {
                         //转base64
@@ -97,12 +80,12 @@ public class CommonFileUtils {
             } else if (object instanceof File) {
                 File file = (File) object;
                 String suffix = getSuffix(object);
-                outFile += file.getName().indexOf(suffix) != -1 ? "" : suffix;
+                outFile += file.getName().contains(suffix) ? "" : suffix;
                 return writeByFile(file, outFile);
             } else if (object instanceof MultipartFile) {
                 MultipartFile file = (MultipartFile) object;
                 String suffix = getSuffix(object);
-                outFile += file.getName().indexOf(suffix) != -1 ? "" : suffix;
+                outFile += file.getName().contains(suffix) ? "" : suffix;
                 return writeFileByMultipartFile(file, outFile);
             }
         } catch (Exception e) {
@@ -120,7 +103,7 @@ public class CommonFileUtils {
                 return file.getName().substring(file.getName().indexOf("."));
             } else if (object instanceof MultipartFile) {
                 MultipartFile file = (MultipartFile) object;
-                return file.getOriginalFilename().substring(file.getOriginalFilename().indexOf("."));
+                return Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().indexOf("."));
             } else if (object instanceof String) {
                 File file = new File((String) object);
                 if(file.isFile()){
@@ -136,13 +119,7 @@ public class CommonFileUtils {
     }
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 写文件到本地
-     * @CreateTime: 2021/1/19 18:01
-     * @param: multipartFile
-     * @param: outFile
-     * @return: java.lang.String
+     * 写文件到本地
      */
     public static String writeFileByMultipartFile(MultipartFile file, String outFile) {
         try {
@@ -153,7 +130,7 @@ public class CommonFileUtils {
             InputStream is = file.getInputStream();
             byte[] bs = new byte[1024];
             int len;
-            OutputStream os = new FileOutputStream(outFile);
+            OutputStream os = Files.newOutputStream(Paths.get(outFile));
             while ((len = is.read(bs)) != -1) {
                 os.write(bs, 0, len);
             }
@@ -167,13 +144,7 @@ public class CommonFileUtils {
     }
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 写文件到本地
-     * @CreateTime: 2021/1/19 18:02
-     * @param: base64
-     * @param: outFile
-     * @return: java.lang.String
+     * 写文件到本地
      */
     public static String writeByBase64(String file, String outFile) {
         try {
@@ -182,10 +153,10 @@ public class CommonFileUtils {
                 return null;
             }
             BASE64Decoder decoder = new BASE64Decoder();
-            OutputStream out = new FileOutputStream(outFile);
+            OutputStream out = Files.newOutputStream(Paths.get(outFile));
             byte[] b = decoder.decodeBuffer(file);
             for (int i = 0; i < b.length; ++i) {
-                if (b[i] < 0) {// 调整异常数据
+                if (b[i] < 0) {
                     b[i] += 256;
                 }
             }
@@ -199,15 +170,9 @@ public class CommonFileUtils {
     }
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 写文件到本地
-     * @CreateTime: 2021/1/19 18:02
-     * @param: inFile
-     * @param: outFile
-     * @return: java.lang.String
+     * 写文件到本地
      */
-    public static String writeByURL(String file, String outFile) {
+    public static String writeUrl(String file, String outFile) {
         try {
             if (isNull(file, outFile)) {
                 log.error("参数为空或者文件不存在");
@@ -232,13 +197,7 @@ public class CommonFileUtils {
     }
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 写文件到本地
-     * @CreateTime: 2021/1/19 18:02
-     * @param: file
-     * @param: outFile
-     * @return: java.lang.String
+     * 写文件到本地
      */
     public static String writeByFile(File file, String outFile) {
         try {
@@ -247,14 +206,7 @@ public class CommonFileUtils {
                 return null;
             }
             FileInputStream fis = new FileInputStream(file);
-            FileOutputStream fos = new FileOutputStream(outFile);
-            int len;
-            byte[] b = new byte[1024];
-            while ((len = fis.read(b)) != -1) {
-                fos.write(b, 0, len);
-            }
-            fos.close();
-            fis.close();
+            writeClose(outFile, fis);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -262,74 +214,63 @@ public class CommonFileUtils {
         return outFile;
     }
 
-    /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 写文件到本地
-     * @CreateTime: 2021/1/19 18:02
-     * @param: filePath
-     * @param: outFile
-     * @return: java.lang.String
-     */
-    public static String writeByFile(String filePath, String outFile) {
-        return writeByFile(new File(filePath), outFile);
+    private static void writeClose(String outFile, FileInputStream fis) throws IOException {
+        FileOutputStream fos = new FileOutputStream(outFile);
+        int len;
+        byte[] b = new byte[1024];
+        while ((len = fis.read(b)) != -1) {
+            fos.write(b, 0, len);
+        }
+        fos.close();
+        fis.close();
     }
 
+
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 如果有一个为空则返回true
-     * @CreateTime: 2021/1/19 16:47
-     * @param: files
-     * @return: boolean
+     * 如果有一个为空则返回true
      */
     public static boolean isNull(Object... objects) {
-        if (objects == null || objects.equals("") || objects[0] == null) {
+        if (objects == null || objects[0] == null) {
             return true;
         }
         for (Object object : objects) {
             String name = object.getClass().getName();
             log.info("比较的类型为{}", name);
-            if (name.equalsIgnoreCase("java.io.File")) {
+            if ("java.io.File".equalsIgnoreCase(name)) {
                 File file = (File) object;
-                return file == null || file.equals("") || !file.isFile();
+                return !file.isFile();
             }
-            if (name.equalsIgnoreCase("org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile")) {
+            if ("org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile".equalsIgnoreCase(name)) {
                 MultipartFile multipartFile = (MultipartFile) object;
-                return multipartFile == null || multipartFile.equals("") || multipartFile.isEmpty();
+                return multipartFile.isEmpty();
             }
-            return object == null || object.equals("");
+            return "".equals(object);
         }
         return false;
     }
 
 
     /**
-     * @CreateBy: shp
-     * @version：1.0
-     * @Description: TODO 都不为空则返回true
-     * @CreateTime: 2021/1/19 16:47
-     * @param: files
-     * @return: boolean
+     * 都不为空则返回true
      */
     public static boolean noNull(Object... objects) {
 
-        if (objects == null || objects.equals("") || objects[0] == null) {
+        if (objects == null || objects[0] == null) {
             return false;
         }
 
         for (Object object : objects) {
             String name = object.getClass().getName();
             log.info("比较的类型为{}", name);
-            if (name.equalsIgnoreCase("java.io.File")) {
+            if ("java.io.File".equalsIgnoreCase(name)) {
                 File file = (File) object;
-                return file != null && file.equals("") && !file.isFile();
+                return !file.isFile();
             }
-            if (name.equalsIgnoreCase("org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile")) {
+            if ("org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile".equalsIgnoreCase(name)) {
                 MultipartFile multipartFile = (MultipartFile) object;
-                return multipartFile != null || !multipartFile.equals("") || !multipartFile.isEmpty();
+                return !multipartFile.isEmpty();
             }
-            return object != null || !object.equals("");
+            return true;
         }
         return false;
     }

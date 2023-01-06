@@ -11,17 +11,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * @CreateBy: Administrator
- * @Version: 1.0
- * @Description: TODO 解压 压缩包
- * @CreateTime: 2021/4/4 19:02
- * @PackageName: com.shp.dev.chat.utils
- * @ProjectName: chat
+ * 解压 压缩包
  */
 @Slf4j
-public class UnZipUtils {
+public class UnZipUtil {
+
     public static void main(String[] args) {
-        UnZipUtils.unZip(new File("E:\\html.zip"), "E:\\");
+        UnZipUtil.unZip(new File("E:\\html.zip"), "E:\\");
     }
 
     /**
@@ -31,7 +27,7 @@ public class UnZipUtils {
      * @param destDirPath 解压后的目标文件夹
      * @throws RuntimeException 解压失败会抛出运行时异常
      */
-    public static void unZip(File srcFile, String destDirPath){
+    public static void unZip(File srcFile, String destDirPath) {
         long start = System.currentTimeMillis();
         // 判断源文件是否存在
         if (!srcFile.exists()) {
@@ -44,20 +40,23 @@ public class UnZipUtils {
             Enumeration<?> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                System.out.println("解压" + entry.getName());
+                log.info("解压" + entry.getName());
                 // 如果是文件夹，就创建个文件夹
                 if (entry.isDirectory()) {
                     String dirPath = destDirPath + "/" + entry.getName();
                     File dir = new File(dirPath);
-                    dir.mkdirs();
+                    boolean mkdirs = dir.mkdirs();
+                    log.info("创建目录：{}", mkdirs);
                 } else {
                     // 如果是文件，就先创建一个文件，然后用io流把内容copy过去
                     File targetFile = new File(destDirPath + "/" + entry.getName());
-                    // 保证这个文件的父文件夹必须要存在
+                    // 保证这个文件的父文件夹必须存在
                     if (!targetFile.getParentFile().exists()) {
-                        targetFile.getParentFile().mkdirs();
+                        boolean mkdirs = targetFile.getParentFile().mkdirs();
+                        log.info("创建目录：{}", mkdirs);
                     }
-                    targetFile.createNewFile();
+                    boolean newFile = targetFile.createNewFile();
+                    log.info("创建文件：{}", newFile);
                     // 将压缩文件内容写入到这个文件中
                     InputStream is = zipFile.getInputStream(entry);
                     FileOutputStream fos = new FileOutputStream(targetFile);
@@ -72,7 +71,7 @@ public class UnZipUtils {
                 }
             }
             long end = System.currentTimeMillis();
-            System.out.println("解压完成，耗时：" + (end - start) + " ms");
+            log.info("解压完成，耗时：" + (end - start) + " ms");
         } catch (Exception e) {
             log.error("unzip error from ZipUtils");
         } finally {
