@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.4</version>
+        <version>2.7.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -17,14 +17,23 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <fastjson.version>1.2.67_noneautotype2</fastjson.version>
+        <fastjson.version>2.0.22</fastjson.version>
         <swagger.version>2.9.2</swagger.version>
-        <swagger-solve.version>1.5.21</swagger-solve.version>
         <fileupload.version>1.4</fileupload.version>
-        <hutool.version>4.6.6</hutool.version>
+        <hutool.version>5.8.11</hutool.version>
     </properties>
     <dependencies>
 
+        <!--SpringBoot-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
         <!--lombok-->
         <dependency>
@@ -32,54 +41,22 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
         <!-- fastjson -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
+
         <!--整合netty-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
-        <!--WebSocet-->
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-        <!--SpringBoot-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <!--swagger-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <!--解决进入swagger页面报类型转换错误，排除2.9.2中的引用，手动增加1.5.21版本-->
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>${swagger-solve.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger-solve.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
+
+
+        <!--hutool-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>

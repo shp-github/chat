@@ -27,8 +27,6 @@ public class NettyWebSocketServer {
         try {
 
             //获取空闲端口
-            SysFreePort sysFreePort = new SysFreePort();
-            //int portAndFree = sysFreePort.getPortAndFree();
             int portAndFree=8888;
             //创建服务引导
             ServerBootstrap bootstrap = new ServerBootstrap();

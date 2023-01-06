@@ -6,8 +6,6 @@ import com.shp.dev.chat.netty.service.NettyWebSocketHandler;
 import com.shp.dev.chat.utils.CommonFileUtils;
 import com.shp.dev.chat.utils.HtmlUtil;
 import com.shp.dev.chat.utils.ReadUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,11 +25,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/netty")
 @CrossOrigin
-@Api("NettyWebSocket暴露接口")
 public class NettyController {
 
     @RequestMapping(value = "/getGroup", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("查询组中所有人")
     public R getGroup() {
         List<String> list = new ArrayList<>();
         NettyChannelHandlerPool.channelGroup.forEach(
@@ -43,19 +39,16 @@ public class NettyController {
     }
 
     @RequestMapping(value = "/getMap", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("查询所有个体map中所有人")
     public R getMap() {
         return R.success(NettyChannelHandlerPool.concurrentHashMap);
     }
 
     @RequestMapping(value = "/selectHashMap", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("下拉选数据")
     public R selectHashMap() {
         return R.success(NettyChannelHandlerPool.selectHashMap);
     }
 
     @RequestMapping(value = "/selectArrayList", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("下拉选数据")
     public R selectArrayList() {
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, String> stringStringEntry : NettyChannelHandlerPool.selectHashMap.entrySet()) {
@@ -66,14 +59,12 @@ public class NettyController {
 
     @SneakyThrows(Exception.class)
     @RequestMapping(value = "/sendAll", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("群发消息")
     public R sendAll(String message) {
         String ip = InetAddress.getLocalHost().getHostAddress();
         NettyWebSocketHandler.sendAllMessage("对方IP：" + ip + "群发消息：" + message);
         return R.success();
     }
 
-    @ApiOperation("客户端发送文件到服务端")
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public R upload(MultipartFile file, String fileName, String frist, String last) {
         frist = System.getProperty("user.dir") + File.separator + "zip/file/";
@@ -88,7 +79,6 @@ public class NettyController {
     }
 
     @RequestMapping(value = "/writeHtml", method = {RequestMethod.POST, RequestMethod.GET})
-    @ApiOperation("读取html输出html到浏览器")
     public void writeHtml(HttpServletResponse res) {
         //设置传输格式
         res.setContentType("text/html;charset=gb2312");
