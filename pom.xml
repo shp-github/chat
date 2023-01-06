@@ -98,7 +98,7 @@
                     <!--配置程序入口-->
                     <mainClass>com.shp.dev.chat.ChatApplication</mainClass>
                     <!--在应用程序中嵌入自定义 JRE-->
-                    <jrePath>C:\Program Files\Java\jre1.8.0_333</jrePath>
+                    <jrePath>C:\Program Files\Java\jre</jrePath>
                     <bundleJre>true</bundleJre>
                     <!--为应用程序生成安装程序-->
                     <generateInstaller>true</generateInstaller>
