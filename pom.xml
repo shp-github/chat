@@ -12,6 +12,7 @@
     <groupId>com.shp.dev</groupId>
     <artifactId>chat</artifactId>
     <name>chat</name>
+    <version>1.0</version>
 
     <description>实现电脑局域网之间通信</description>
 
